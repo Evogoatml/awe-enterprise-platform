@@ -1,0 +1,96 @@
+// frontend/src/components/Dashboard.jsx
+import React, { useEffect, useState } from 'react';
+import { LineChart, BarChart, Heatmap } from 'recharts';
+import { useWebSocket } from './hooks/useWebSocket';
+
+export default function Dashboard() {
+  const [data, setData] = useState(null);
+  const ws = useWebSocket('ws://localhost:8000/ws/dashboard');
+  
+  useEffect(() => {
+    // Initial load
+    fetch('/api/analytics/dashboard?days=7')
+      .then(r => r.json())
+      .then(setData);
+  }, []);
+  
+  useEffect(() => {
+    if (ws.lastMessage) {
+      setData(ws.lastMessage);
+    }
+  }, [ws.lastMessage]);
+
+  return (
+    <div className="dashboard">
+      {/* KPI Cards */}
+      <div className="kpi-grid">
+        <KPICard 
+          title="Revenue (7d)" 
+          value={`$${data?.revenue?.toFixed(2)}`}
+          trend={data?.revenue_trend}
+        />
+        <KPICard 
+          title="EPC" 
+          value={`$${data?.epc?.toFixed(2)}`}
+          trend={data?.epc_trend}
+        />
+        <KPICard 
+          title="Conversion Rate" 
+          value={`${data?.conversion_rate?.toFixed(2)}%`}
+        />
+        <KPICard 
+          title="Active Campaigns" 
+          value={data?.active_campaigns}
+        />
+      </div>
+      
+      {/* Charts */}
+      <div className="charts-grid">
+        <RevenueChart data={data?.daily_breakdown} />
+        <SubAffiliateComparison data={data?.sub_affiliate_breakdown} />
+        <PostingHeatmap data={data?.hourly_heatmap} />
+      </div>
+      
+      {/* Active Campaigns Table */}
+      <CampaignsTable campaigns={data?.campaigns} />
+      
+      {/* Optimization Log */}
+      <OptimizationLog actions={data?.recent_optimizations} />
+    </div>
+  );
+}
+
+// Campaign Detail View
+function CampaignDetail({ campaignId }) {
+  const [detail, setDetail] = useState(null);
+  
+  useEffect(() => {
+    fetch(`/api/analytics/sub-affiliates/${campaignId}`)
+      .then(r => r.json())
+      .then(setDetail);
+  }, [campaignId]);
+  
+  return (
+    <div className="campaign-detail">
+      <h2>{detail?.name}</h2>
+      
+      <MetricsRow metrics={detail?.metrics} />
+      
+      <div className="actions">
+        <button onClick={() => triggerOptimization(campaignId)}>
+          Run Optimization
+        </button>
+        <button onClick={() => pauseCampaign(campaignId)}>
+          Pause
+        </button>
+        <button onClick={() => editCampaign(campaignId)}>
+          Edit Settings
+        </button>
+      </div>
+      
+      <PerformanceChart data={detail?.daily_breakdown} />
+      <ContentPerformanceTable content={detail?.content_performance} />
+      <OptimizationHistory history={detail?.optimization_history} />
+    </div>
+  );
+}

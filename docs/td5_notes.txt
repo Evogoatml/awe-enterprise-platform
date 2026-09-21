@@ -1,0 +1,66 @@
+awe-enterprise-platform/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                    # Automated testing
+│       └── deploy.yml                # Deployment pipeline
+├── alembic/                          # Database migrations
+│   └── versions/
+├── api/                              # FastAPI application
+│   ├── __init__.py
+│   ├── main.py                       # Entry point
+│   ├── dependencies.py               # FastAPI deps
+│   └── routers/
+│       ├── campaigns.py
+│       ├── analytics.py
+│       ├── proxy.py
+│       └── health.py
+├── core/                             # Core utilities
+│   ├── __init__.py
+│   ├── config.py                     # Settings management
+│   ├── database.py                   # DB connection
+│   ├── redis.py                      # Redis client
+│   └── logging.py                    # Structured logging
+├── enterprise/                       # Main modules
+│   ├── __init__.py
+│   ├── circuit_breakers.py           # Resilience
+│   ├── fingerprinting.py           # Content dedup
+│   ├── account_lifecycle.py        # Account management
+│   ├── smart_limiter.py            # Rate limiting
+│   ├── meta_cognitive_strategy.py  # AI optimization
+│   ├── proxy_chain.py                # Proxy management
+│   └── observability.py              # Monitoring
+├── models/                           # SQLAlchemy models
+│   ├── __init__.py
+│   ├── base.py
+│   ├── account.py
+│   ├── campaign.py
+│   ├── content.py
+│   └── analytics.py
+├── services/                         # Business logic
+│   ├── __init__.py
+│   ├── content_ingestion.py
+│   ├── platform_bots.py
+│   ├── analytics_engine.py
+│   └── optimization_engine.py
+├── workers/                          # Background tasks
+│   ├── __init__.py
+│   ├── scheduler.py
+│   ├── poster.py
+│   └── stats_sync.py
+├── tests/                            # Test suite
+│   ├── unit/
+│   └── integration/
+├── docker/
+│   ├── Dockerfile.api
+│   ├── Dockerfile.worker
+│   └── docker-compose.yml
+├── scripts/
+│   ├── init_db.py
+│   └── migrate.py
+├── .env.example                      # Template
+├── .gitignore
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── requirements-dev.txt
+└── pyproject.toml
