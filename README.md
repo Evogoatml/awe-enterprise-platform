@@ -1,6 +1,6 @@
 # AWE Enterprise Platform
 
-> **Status: not production-ready.** The API runtime, configuration validation, and health checks are a starting point only. Campaign automation, external-platform integrations, persistent data APIs, migrations, deployment hardening, and operational monitoring remain incomplete and must not be treated as production features.
+> **Status: not a production-ready platform.** The narrow API runtime, strict settings validation, capability-gated sandbox, and audit events have executable tests. The content ingestion, analytics, optimization, and scheduler modules now provide a testable first workflow slice, but they are not wired into the API or an application composition root. Database migrations, live source credentials, external posting integrations, deployment hardening, and operational monitoring remain deployment work; account/bot automation and strategy modules remain experimental.
 
 AWE Enterprise Platform is a Python-based, modular platform for AI-assisted digital operations, campaign optimization, content intelligence, and enterprise-grade automation. The repository is designed as a strategic foundation for modern performance marketing and operational orchestration, combining analytics, experimentation, intelligent routing, and adaptive strategy generation into a single extensible system.
 
@@ -149,6 +149,12 @@ Set `AWE_SANDBOX_SECRET` to a securely generated value of at least 32 bytes and 
 Security events are emitted as JSON lines through the `security.audit` Python logger. Retain this logger at `INFO` or higher in the centralized logging system. Records cover token issuance, verification failures, denied execution, network-access requests, timeout kills, and revocation; token contents and signing secrets are never logged. `capability_verification_failed` indicates a malformed, expired, revoked, invalid-signature, or insufficient-scope token. `sandbox_timeout_kill` means the wall-clock deadline was exceeded and the process group was killed. A failed command exit is returned in `SandboxResult`; `network_isolation_enforced=False` means the host could not enforce OS-level network isolation.
 
 Run `python -m unittest discover -s tests -v` to exercise the sandbox. The network-namespace integration test uses the host's real `unshare --net` support and skips with an explicit reason when Linux privileges or runtime support are unavailable.
+
+## Content pipeline status
+
+`src/services/content_ingestion.py` parses RSS 2.0 and the configured video API response schema, applies request timeouts and bounded retries, and stores normalized records using `(source, external_id)` deduplication. `src/services/analytics.py` calculates metrics from persisted posts and daily costs; fetching AWE reports requires an explicit `partner_hash`. `src/services/optimization.py` applies bounded campaign actions idempotently per sub-affiliate decision and day. `src/workers/scheduler.py` provides a queue-backed RQ entry point and an injectable content-to-post workflow.
+
+These modules are library-level building blocks, not an enabled campaign automation service. The application must provide database, queue, content selection, caption generation, and platform-posting integrations. Missing external integrations fail explicitly; the platform-bot/account lifecycle prototypes are not used by this path. See `tests/test_content_pipeline.py` for the fixture-backed workflow contract.
 
 ## Getting Started
 
