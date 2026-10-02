@@ -142,6 +142,14 @@ The `security/` package provides a capability-gated process sandbox (`security.s
 
 See `tests/test_capability.py` and `tests/test_sandbox.py` for executable examples of the expected security behavior (verification, expiry, revocation, denied execution, timeouts).
 
+### Sandbox operations and audit
+
+Set `AWE_SANDBOX_SECRET` to a securely generated value of at least 32 bytes and keep it in the deployment secret manager. Rotate it by updating every worker and restarting them; changing the key invalidates all existing tokens, so issue fresh tokens after rotation. Revoke an active token by verifying it and passing its `jti` to `CapabilityManager.revoke()`. Revocation is process-local; multi-worker deployments need a shared revocation store.
+
+Security events are emitted as JSON lines through the `security.audit` Python logger. Retain this logger at `INFO` or higher in the centralized logging system. Records cover token issuance, verification failures, denied execution, network-access requests, timeout kills, and revocation; token contents and signing secrets are never logged. `capability_verification_failed` indicates a malformed, expired, revoked, invalid-signature, or insufficient-scope token. `sandbox_timeout_kill` means the wall-clock deadline was exceeded and the process group was killed. A failed command exit is returned in `SandboxResult`; `network_isolation_enforced=False` means the host could not enforce OS-level network isolation.
+
+Run `python -m unittest discover -s tests -v` to exercise the sandbox. The network-namespace integration test uses the host's real `unshare --net` support and skips with an explicit reason when Linux privileges or runtime support are unavailable.
+
 ## Getting Started
 
 ### Prerequisites

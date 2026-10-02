@@ -28,11 +28,14 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import secrets
 import time
 from dataclasses import dataclass
 from typing import Iterable
+
+from security.audit import audit_event
 
 
 class CapabilityError(Exception):
@@ -109,7 +112,15 @@ class CapabilityManager:
         }
         payload_bytes = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
         signature = hmac.new(self._secret, payload_bytes, hashlib.sha256).digest()
-        return f"{_b64encode(payload_bytes)}.{_b64encode(signature)}"
+        token = f"{_b64encode(payload_bytes)}.{_b64encode(signature)}"
+        audit_event(
+            "capability_issued",
+            subject=subject,
+            scopes=payload["scopes"],
+            jti=payload["jti"],
+            expires_at=payload["exp"],
+        )
+        return token
 
     def verify(self, token: str, required_scope: str | None = None) -> Capability:
         """Verify ``token`` and return the decoded :class:`Capability`.
@@ -118,6 +129,18 @@ class CapabilityManager:
         signature does not match, it has expired, it has been revoked,
         or it lacks ``required_scope`` (when given).
         """
+        try:
+            return self._verify(token, required_scope)
+        except CapabilityError as exc:
+            audit_event(
+                "capability_verification_failed",
+                level=logging.WARNING,
+                reason=str(exc),
+                required_scope=required_scope,
+            )
+            raise
+
+    def _verify(self, token: str, required_scope: str | None = None) -> Capability:
         if not token or "." not in token:
             raise CapabilityError("malformed capability token")
 
@@ -156,6 +179,7 @@ class CapabilityManager:
     def revoke(self, jti: str) -> None:
         """Invalidate a token by id, even if it has not expired yet."""
         self._revoked.add(jti)
+        audit_event("capability_revoked", jti=jti)
 
     def is_revoked(self, jti: str) -> bool:
         return jti in self._revoked
