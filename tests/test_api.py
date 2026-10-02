@@ -40,6 +40,21 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json()["checks"], {"database": True, "redis": False})
 
+    @patch("api.main.probe_dependencies")
+    def test_readiness_succeeds_when_dependencies_are_healthy(self, probe):
+        probe.return_value = {"database": True, "redis": True}
+        self.settings = Settings(
+            environment="test",
+            database_url="postgresql://localhost/test",
+            redis_url="redis://localhost",
+        )
+        self.client.close()
+        self.client = TestClient(create_app(self.settings))
+
+        response = self.client.get("/health/ready")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "ready")
+
     def test_api_requires_a_valid_bearer_token(self):
         self.assertEqual(self.client.get("/api/status").status_code, 401)
         response = self.client.get(
