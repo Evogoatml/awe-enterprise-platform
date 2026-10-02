@@ -1,6 +1,7 @@
 # utils/secrets.py
 import os
 import json
+from datetime import datetime
 from typing import Dict, Optional
 import hvac  # HashiCorp Vault client
 import boto3  # AWS Secrets Manager
@@ -76,7 +77,7 @@ class DynamicConfig:
     async def _maybe_refresh(self):
         """Refresh if stale"""
         if (self._last_update and 
-            (datetime.now() - self._last_update).seconds < self._refresh_interval):
+            (datetime.now() - self._last_update).total_seconds() < self._refresh_interval):
             return
         
         # Fetch from DB
