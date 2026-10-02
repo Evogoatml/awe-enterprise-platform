@@ -32,15 +32,15 @@ The intended architecture supports a feedback loop: ingest content, evaluate per
 
 ## Architecture Overview
 
-The repository is organized into modular components aligned to platform capabilities:
+The repository contains a small runnable API plus standalone libraries and prototypes. A directory's presence does not mean its code is loaded by the API:
 
-- `api/` and `core/` — current FastAPI runtime and configuration
-- `src/` — library-level services, worker entry point, and experimental modules; not composed into the API runtime
-- `engine/` — meta-cognitive strategy and reasoning components
-- `api/` — current FastAPI application with health and status endpoints
-- `enterprise/` — enterprise controls, lifecycle management, and fingerprinting logic
-- `docs/` — supporting documentation and product guidance
-- `utils/` — cross-cutting utilities, resilience, safety, and observability
+- `api/` and `core/` — FastAPI application, environment settings, health/readiness/status routes
+- `security/` — capability-gated subprocess sandbox and audit events
+- `src/services/` and `src/workers/` — library-level content, analytics, optimization, and scheduler code; not composed into the API runtime
+- `src/enterprise/`, `engine/`, and root `enterprise/` — experimental account lifecycle, strategy, and fingerprinting code
+- `utils/` — standalone utility prototypes; not a deployed observability or secret-management service
+- `tests/` — unit tests using fakes and fixtures, including the content-pipeline workflow
+- `docs/` — proposed architectures and product guidance
 
 ### Core Components
 
@@ -82,41 +82,38 @@ The following are intended capability areas, not a list of fully implemented run
 ```text
 .
 ├── api/
-│   └── API-facing logic and integrations
+│   └── FastAPI health, readiness, and status endpoints
+├── core/
+│   └── Runtime settings
 ├── docs/
-│   └── Product, operational, and technical documentation
+│   └── Product notes and explicitly aspirational architecture diagrams
 ├── engine/
-│   └── Strategy and reasoning engines
+│   └── Experimental strategy code
 ├── enterprise/
-│   └── Enterprise lifecycle and fingerprinting services
+│   └── Fingerprinting prototype
 ├── security/
 │   └── Capability-gated process sandbox (see "Sandboxed Execution Security Model")
 ├── src/
-│   ├── database/
-│   ├── enterprise/
-│   ├── services/
-│   ├── utils/
-│   ├── workers/
-│   ├── main.py
-│   └── platform services and orchestration
+│   ├── database/                       # Standalone SQL schema files, not migrations
+│   ├── enterprise/                     # Account lifecycle prototype
+│   ├── services/                       # Library-level services and prototypes
+│   ├── workers/                        # Injectable RQ scheduler, not a deployed worker
+│   └── main.py                         # Compatibility entry point for API
+├── tests/
+├── utils/
+├── Dockerfile                          # Minimal API image only
 ├── requirements.txt
 ├── README.md
-└── .gitignore (if present in the repository)
+└── .gitignore
 ```
 
 ## Technology Stack
 
-The platform is built primarily in Python and uses a modern data and operations stack centered on reliability and experimentation:
+The implemented API runtime is Python-based and uses FastAPI, Uvicorn, asyncpg, and Redis. The minimal `Dockerfile` installs only `requirements-api.txt`; the broader requirements include libraries used by disconnected modules or prototypes. Their inclusion does not imply an integrated data, ML, cloud, or monitoring stack:
 
-- Python 3.x
-- Asyncio-based orchestration
-- SQLAlchemy for persistence abstraction
-- PostgreSQL-friendly design patterns
-- Redis and job queue patterns
-- NumPy, pandas, and scikit-learn for analytical workloads
-- OpenCV and imagehash for content similarity and vision-based analysis
-- Prometheus-style observability and telemetry patterns
-- Cloud and secret-management compatibility via Vault and AWS integrations
+- `requirements-api.txt` provides the API runtime dependencies.
+- `requirements.txt` includes additional libraries for standalone or experimental modules, including RQ, SQLAlchemy, NumPy, pandas, scikit-learn, imagehash, OpenCV, Vault/AWS clients, and Prometheus client.
+- Database schema files under `src/database/` are not versioned migrations, and the API does not initialize the content workflow or worker.
 
 ## Intended Platform Behaviors
 
@@ -211,7 +208,7 @@ The content-pipeline test verifies a fixture-backed path from ingestion through 
 
 ## Operational Considerations
 
-To move this repository from a strong technical foundation to an enterprise-grade production platform, the next steps typically include:
+To move this early-stage repository toward a production platform, the next steps typically include:
 
 - Defining a formal service contract and API specification
 - Establishing a production configuration and secret-management model
@@ -231,9 +228,9 @@ Before scaling into production, leadership should ensure:
 - Security review covers external APIs, credentials, and operational secrets
 - Monitoring and audit traces exist for decision-making processes
 
-## Recommended Product Positioning
+## Intended Product Direction (Not Current Runtime Capabilities)
 
-This repository is best described as:
+The following phrases describe the product vision only, not capabilities available in the current API:
 
 - an AI-augmented operational platform
 - a strategy-driven digital optimization engine
@@ -254,4 +251,4 @@ No explicit license was identified in the repository metadata at the time of wri
 
 ---
 
-AWE Enterprise Platform is designed as a strategic operating system for digital growth—combining machine-guided optimization, resilient infrastructure, and enterprise control into a single extensible platform.
+**Aspirational vision:** AWE Enterprise Platform may develop into a strategic operating system for digital growth, combining machine-guided optimization, resilient infrastructure, and enterprise control. This is not a description of the current integrated runtime.

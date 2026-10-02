@@ -1,4 +1,13 @@
-# AWE Enterprise Affiliate Platform
+# Historical aspirational quick-start — not current setup instructions
+
+This note describes a proposed affiliate automation platform, not the implemented
+application. It is retained as an old product sketch. The repository does not
+provide the Docker Compose stack, Alembic migrations, dashboard, or integrated
+multi-platform account automation described below. The current Docker image runs
+only the FastAPI application in `api/main.py`. For actual setup instructions, see
+the root `README.md`.
+
+# AWE Enterprise Affiliate Platform (proposal)
 
 Enterprise-grade affiliate marketing automation platform with meta-cognitive optimization, resilient infrastructure, and intelligent rate limiting.
 
