@@ -23,22 +23,4 @@ Proposed affiliate marketing automation concept. The capabilities listed below a
 
 ## Historical Quick Start (Not Valid for the Current Repository)
 
-The commands below are retained from the original proposal and do not work for this repository. See the root `README.md` for current setup instructions.
-
-```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/awe-enterprise-platform.git
-cd awe-enterprise-platform
-
-# Copy environment template
-cp .env.example .env
-# Edit .env with your credentials
-
-# Start with Docker Compose
-docker-compose up -d
-
-# Run migrations
-docker-compose exec api alembic upgrade head
-
-# Access dashboard
-open http://localhost:8000/docs
+The original Docker Compose and migration commands are not valid for this repository. See the root `README.md` for current setup instructions.
