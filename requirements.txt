@@ -7,7 +7,7 @@ rq>=1.5.0
 sqlalchemy>=2.0.0
 
 # API & Web
-praw>=7.6.0  # Reddit API alternative
+praw>=8.0.3  # Reddit API alternative
 python-dotenv>=1.0.0
 
 # Database
