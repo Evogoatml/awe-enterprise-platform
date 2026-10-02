@@ -16,6 +16,7 @@ def audit_event(event: str, *, level: int = logging.INFO, **fields: Any) -> None
     record = {
         **fields,
         "event": event,
+        "level": logging.getLevelName(level),
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
     _LOGGER.log(level, json.dumps(record, sort_keys=True, separators=(",", ":")))

@@ -33,6 +33,9 @@ class AuditLoggingTests(unittest.TestCase):
                 "capability_verification_failed",
             ],
         )
+        self.assertTrue(
+            all({"event", "level", "timestamp"} <= event.keys() for event in events)
+        )
         self.assertEqual(events[0]["subject"], "audit-subject")
         self.assertEqual(events[1]["jti"], capability.jti)
         self.assertNotIn(token, "\n".join(record.getMessage() for record in captured.records))
