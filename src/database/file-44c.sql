@@ -13,6 +13,7 @@ CREATE TABLE campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(200),
     sub_affiliate_id VARCHAR(50) REFERENCES sub_affiliates(id),
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'paused')),
     tags TEXT[], -- ['milf', 'teen', 'blonde']
     posting_schedule JSONB, -- {hours: [14, 20, 22], interval_min: 30}
     content_sources TEXT[], -- ['rss', 'video_api']
@@ -35,7 +36,8 @@ CREATE TABLE content_pool (
     fetched_at TIMESTAMP DEFAULT NOW(),
     used_count INT DEFAULT 0,
     performance_score FLOAT DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'available' -- available, used, banned
+    status VARCHAR(20) DEFAULT 'available', -- available, used, banned
+    UNIQUE (source, external_id)
 );
 
 CREATE TABLE posts (
@@ -75,5 +77,6 @@ CREATE TABLE optimization_logs (
     reason TEXT,
     metrics_before JSONB,
     metrics_after JSONB,
-    auto_applied BOOLEAN DEFAULT false
+    auto_applied BOOLEAN DEFAULT false,
+    idempotency_key VARCHAR(64) UNIQUE
 );

@@ -1,4 +1,6 @@
+import ipaddress
 import os
+import re
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -36,8 +38,7 @@ class Settings:
             raise ValueError("APP_ENV must be development, test, or production")
         if not 1 <= self.port <= 65535:
             raise ValueError("PORT must be between 1 and 65535")
-        if not self.host.strip():
-            raise ValueError("HOST must not be empty")
+        self._validate_host(self.host)
 
         self._validate_url(self.database_url, {"postgres", "postgresql"}, "DATABASE_URL")
         self._validate_url(self.redis_url, {"redis", "rediss"}, "REDIS_URL")
@@ -63,3 +64,26 @@ class Settings:
         if parsed.scheme not in schemes or not parsed.hostname:
             expected = " or ".join(sorted(schemes))
             raise ValueError(f"{name} must be a valid {expected} URL")
+
+    @staticmethod
+    def _validate_host(value: str) -> None:
+        if not value or value != value.strip() or any(char.isspace() for char in value):
+            raise ValueError("HOST must be a valid IP address or hostname")
+        try:
+            ipaddress.ip_address(value)
+            return
+        except ValueError:
+            pass
+
+        hostname = value[:-1] if value.endswith(".") else value
+        if (
+            len(hostname) > 253
+            or not hostname
+            or any(
+                not label
+                or len(label) > 63
+                or not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?", label)
+                for label in hostname.split(".")
+            )
+        ):
+            raise ValueError("HOST must be a valid IP address or hostname")
