@@ -1,3 +1,7 @@
+PROPOSAL / CONCEPT DIAGRAM — NOT A DESCRIPTION OF THE CURRENT RUNTIME.
+The dashboard, API gateway, worker queue, analytics service, and data layer
+shown below describe a target architecture, not deployed integrations.
+
 ┌─────────────────────────────────────────────────────────────┐
 │                        DASHBOARD UI                          │
 │  (React/Vue - Real-time charts, controls, reports)          │

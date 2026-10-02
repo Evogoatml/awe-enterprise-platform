@@ -1,3 +1,7 @@
+PROPOSAL / CONCEPT DIAGRAM — NOT A DESCRIPTION OF THE CURRENT RUNTIME.
+The proxy chains shown below are aspirational; do not treat them as deployed
+or integrated services.
+
 ┌─────────────────────────────────────────────────────────────┐
 │                    PROXY ORCHESTRATOR                        │
 │              (Smart routing & health management)            │

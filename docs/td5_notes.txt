@@ -1,3 +1,8 @@
+PROPOSAL / ASPIRATIONAL ARCHITECTURE — NOT THE CURRENT REPOSITORY TREE.
+This note describes a proposed structure. The deployment workflow, Alembic
+migrations, routers, models, worker containers, and other listed components
+must not be read as implemented features.
+
 awe-enterprise-platform/
 ├── .github/
 │   └── workflows/

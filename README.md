@@ -2,13 +2,13 @@
 
 > **Status: not a production-ready platform.** The narrow API runtime, strict settings validation, capability-gated sandbox, and audit events have executable tests. The content ingestion, analytics, optimization, and scheduler modules now provide a testable first workflow slice, but they are not wired into the API or an application composition root. Database migrations, live source credentials, external posting integrations, deployment hardening, and operational monitoring remain deployment work; account/bot automation and strategy modules remain experimental.
 
-AWE Enterprise Platform is a Python-based, modular platform for AI-assisted digital operations, campaign optimization, content intelligence, and enterprise-grade automation. The repository is designed as a strategic foundation for modern performance marketing and operational orchestration, combining analytics, experimentation, intelligent routing, and adaptive strategy generation into a single extensible system.
+This repository contains a small Python API runtime, a capability-gated process sandbox, and library-level content-pipeline components. Its broader positioning—AI-assisted digital operations, campaign optimization, and enterprise automation—is a target direction, not a description of a fully integrated or production-ready system.
 
 ## Executive Summary
 
-AWE Enterprise Platform represents a next-generation operational layer for businesses that need to orchestrate content production, campaign optimization, performance analytics, and automated platform engagement at scale. Rather than treating each function as a disconnected tool, the platform unifies them into a system that can sense performance, identify opportunities, adapt strategy, and coordinate execution across multiple digital channels.
+AWE Enterprise Platform is intended to become an operational layer for content production, campaign optimization, performance analytics, and platform engagement. The current repository does not yet unify these capabilities into a running multi-channel system.
 
-The platform combines a clear service-oriented architecture with advanced logic for meta-cognitive strategy development, enterprise account lifecycle management, campaign optimization, and intelligent content deduplication. In practical terms, it is built to support marketing and digital operations teams that require not only automation, but adaptive decision-making grounded in measurable outcomes.
+The repository contains components and prototypes related to strategy, account lifecycle management, campaign optimization, and content fingerprinting. Their presence does not mean they are complete, tested, or integrated with the API runtime.
 
 From a strategic perspective, the repository is positioned around three core themes:
 
@@ -28,20 +28,23 @@ AWE Enterprise Platform is intended to provide decision-makers with a discipline
 - Experimentation across audiences and offer structures
 - Governance and lifecycle controls across customer and affiliate accounts
 
-The architecture is explicitly designed to support a feedback loop: ingest content, evaluate performance, apply optimization logic, refine strategy, and re-deploy high-performing configurations. This creates a platform mindset in which operational insight is continuously converted into action.
+The intended architecture supports a feedback loop: ingest content, evaluate performance, apply optimization logic, refine strategy, and redeploy configurations. Only a fixture-backed library workflow currently exercises part of this path; it is not an enabled campaign service.
 
 ## Architecture Overview
 
 The repository is organized into modular components aligned to platform capabilities:
 
-- `src/` — primary application runtime, orchestration, and service layer
+- `api/` and `core/` — current FastAPI runtime and configuration
+- `src/` — library-level services, worker entry point, and experimental modules; not composed into the API runtime
 - `engine/` — meta-cognitive strategy and reasoning components
-- `api/` — API-facing integrations and endpoints
+- `api/` — current FastAPI application with health and status endpoints
 - `enterprise/` — enterprise controls, lifecycle management, and fingerprinting logic
 - `docs/` — supporting documentation and product guidance
 - `utils/` — cross-cutting utilities, resilience, safety, and observability
 
 ### Core Components
+
+The following are intended capability areas, not a list of fully implemented runtime features. See [Implementation status](#implementation-status) for current coverage and integration gaps.
 
 1. Analytics and Optimization Services
    - Performance tracking
@@ -115,7 +118,9 @@ The platform is built primarily in Python and uses a modern data and operations 
 - Prometheus-style observability and telemetry patterns
 - Cloud and secret-management compatibility via Vault and AWS integrations
 
-## Key Platform Behaviors
+## Intended Platform Behaviors
+
+These describe product direction; they are not claims that all behaviors are available in the current runtime.
 
 ### Adaptive Strategy Generation
 The repository includes a meta-cognitive strategy engine designed to generate, evaluate, and iterate on campaign concepts. This type of logic enables a platform to move from static campaign rules to dynamic strategic experimentation.
@@ -124,10 +129,10 @@ The repository includes a meta-cognitive strategy engine designed to generate, e
 The design emphasizes measurable improvement across content, delivery, and engagement workflows, reinforcing a culture of continuous optimization rather than reactionary change.
 
 ### Enterprise Readiness
-The enterprise layer introduces governance patterns needed for operational scale, including lifecycle governance, account controls, and operational safeguards relevant to regulated or high-risk business environments.
+Enterprise-oriented modules and governance patterns exist as prototypes, but they are not evidence of operational readiness or integrated account controls.
 
 ### Resilience Engineering
-The platform includes patterns for monitoring, throttling, and circuit-breaking to protect system health and reduce cascading failures in dynamic production environments.
+Standalone resilience, throttling, and observability prototypes exist; they are not integrated into the API runtime or a verified production monitoring setup.
 
 ## Sandboxed Execution Security Model
 
@@ -188,18 +193,21 @@ Set `APP_ENV=production` and supply `DATABASE_URL`, `REDIS_URL`, and a securely 
 
 `src/main.py` remains as a compatibility entry point (`python -m src.main`). The services under `src/services`, `engine`, and `enterprise` are not all wired into this API runtime; several remain incomplete prototypes. Do not enable external account actions until platform policy, authorization, consent, rate limits, audit, and recovery controls are implemented and verified.
 
-## Notable Implementation Signals
+## Implementation status
 
-Several areas of the codebase demonstrate strong platform intent:
+The table below distinguishes code that currently runs and has tests from library modules and prototypes. “Dependencies” describes what a deployed or integrated application still needs to provide; it is not a list of Python package requirements.
 
-- `src/main.py` initializes the platform and logs the major system subsystems
-- `engine/meta_cognitive_strategy.py` implements strategy-tree exploration and adaptive campaign experimentation
-- `src/services/analytics.py` indicates performance analytics support
-- `src/services/content_ingestion.py` suggests systematic content acquisition and ingestion workflows
-- `src/services/optimization.py` indicates optimization logic to improve operational outcomes
-- `src/services/platform_bots.py` supports platform-level automation and orchestration
-- `src/enterprise/account_lifecycle.py` confirms enterprise lifecycle and governance workflows
-- `enterprise/fingerprinting.py` adds content identity and deduplication intelligence
+| Area | Current state | Tests | Not yet provided or verified |
+| --- | --- | --- | --- |
+| API runtime (`api/main.py`, `core/config.py`) | FastAPI app with liveness/readiness checks, `/api/status`, bearer-token gate, and settings validation | `tests/test_api.py`, `tests/test_config.py` | Production identity/roles, application feature routes, and reachable PostgreSQL/Redis services |
+| Capability sandbox and audit (`security/`) | Capability-gated subprocess execution and structured audit events | `tests/test_capability.py`, `tests/test_sandbox.py`, `tests/test_audit_logging.py`; host-dependent namespace test in `tests/test_sandbox_integration.py` | Shared revocation storage for multiple workers and deployment-specific sandbox hardening |
+| Content pipeline (`src/services/`, `src/workers/scheduler.py`) | Ingestion, analytics, optimization, and queue-backed scheduling components; tested as a library workflow | `tests/test_content_pipeline.py` uses fixtures and fakes | Application composition, database/schema provisioning, queue and worker deployment, content selection, caption generation, and platform-posting integrations |
+| Database artifacts (`src/database/`) | Standalone SQL schema files are present | No migration or live-database test in the current suite | Versioned migration tooling and schema lifecycle |
+| Strategy, account/bot, proxy, fingerprinting, and broader observability modules | Prototype or aspirational code; not wired into the API runtime | Not covered by the current test suite | Completion, safe integration, dependencies/configuration, and tests before operational use |
+
+`src/main.py` is a compatibility entry point that delegates to `api.main.main`; it does not initialize the broader platform. The API application exposes only health and status endpoints. CI currently installs the development requirements, compiles selected Python paths, and runs unittest discovery on Python 3.11 and 3.12 (`.github/workflows/ci.yml`). Compilation does not cover every prototype or all repository Python files.
+
+The content-pipeline test verifies a fixture-backed path from ingestion through injected posting components; it does not establish that the API or a deployed worker configures those components (`tests/test_content_pipeline.py`; `src/workers/scheduler.py`).
 
 ## Operational Considerations
 
@@ -208,7 +216,7 @@ To move this repository from a strong technical foundation to an enterprise-grad
 - Defining a formal service contract and API specification
 - Establishing a production configuration and secret-management model
 - Adding migration tooling and database schema governance
-- Implementing automated tests and CI/CD enforcement
+- Extending automated test coverage and adding deployment/release workflows
 - Creating deployment and environment management policies
 - Formalizing monitoring dashboards and operational SLAs
 - Establishing security, compliance, and data-handling review processes
@@ -236,9 +244,9 @@ This framing aligns the technology with real business value: faster decision cyc
 
 ## Conclusion
 
-AWE Enterprise Platform is a substantive technology foundation for organizations seeking an intelligent and adaptive digital operations environment. It brings together analytics, automation, experimentation, lifecycle management, and strategic reasoning in a single architecture designed for operational scale.
+AWE Enterprise Platform is an early-stage repository containing a narrow API runtime, tested security components, and a testable but unintegrated workflow slice.
 
-The repository reflects a thoughtful engineering approach, with modular separation, strong service orientation, and a clear emphasis on optimization and enterprise governance. With disciplined implementation, testing, and operational hardening, it has the potential to evolve from a strategic platform prototype into a high-value production system for digital growth operations.
+The broader analytics, automation, experimentation, lifecycle-management, and strategy capabilities remain incomplete or disconnected. Reaching production use requires the integration, migration, identity, deployment, and operational work listed above.
 
 ## License
 
