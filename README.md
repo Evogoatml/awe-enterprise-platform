@@ -86,6 +86,8 @@ The repository is organized into modular components aligned to platform capabili
 │   └── Strategy and reasoning engines
 ├── enterprise/
 │   └── Enterprise lifecycle and fingerprinting services
+├── security/
+│   └── Capability-gated process sandbox (see "Sandboxed Execution Security Model")
 ├── src/
 │   ├── database/
 │   ├── enterprise/
@@ -126,6 +128,19 @@ The enterprise layer introduces governance patterns needed for operational scale
 
 ### Resilience Engineering
 The platform includes patterns for monitoring, throttling, and circuit-breaking to protect system health and reduce cascading failures in dynamic production environments.
+
+## Sandboxed Execution Security Model
+
+The `security/` package provides a capability-gated process sandbox (`security.sandbox.Sandbox`) used to run untrusted or semi-trusted commands. It replaces any prior notion of an unsigned, client-supplied "capability token" with the following, simpler model:
+
+- **Authorization boundary**: every call to `Sandbox.execute()` must present a token issued by `security.capability.CapabilityManager`. Tokens are HMAC-SHA256 signed with a server-side secret (`AWE_SANDBOX_SECRET`), carry explicit scopes (e.g. `sandbox:execute`, `sandbox:network`), and have a short expiry. Tokens can also be revoked by id before they expire. This signature check is the only actual security boundary in the module.
+- **Heuristics are advisory only**: simple command-string pattern matching (`security.sandbox.detect_anomalies`) is attached to results purely as telemetry for logging/alerting. It is never used to allow or deny execution, because string heuristics are trivially bypassed.
+- **Network is denied by default**: enabling it requires both `SandboxPolicy.allow_network=True` and a token carrying the `sandbox:network` scope. When the host has the privilege to create a network namespace, that denial is additionally enforced at the OS level; when it does not, the result reports that OS-level isolation was not enforced so callers aren't misled.
+- **Filesystem writes are restricted**: only paths listed in `SandboxPolicy.writable_paths` are made available (via an ephemeral per-run sandbox directory), which is also cleaned up after every run.
+- **Hardening**: `PR_SET_NO_NEW_PRIVS`, CPU/memory/file-descriptor `RLIMIT_*`s, wall-clock timeouts that kill the whole process group, capped stdout/stderr, and optional non-root `run_as_uid`/`run_as_gid` execution.
+- **No Docker requirement**: the sandbox runs as a regular subprocess so it keeps working in environments without a container runtime; this is a deliberate trade-off documented in `security/sandbox.py`, where the exact guarantees and limitations (e.g. filesystem isolation is best-effort without a container/mount namespace) are spelled out.
+
+See `tests/test_capability.py` and `tests/test_sandbox.py` for executable examples of the expected security behavior (verification, expiry, revocation, denied execution, timeouts).
 
 ## Getting Started
 
