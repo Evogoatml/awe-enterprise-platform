@@ -200,6 +200,16 @@ class ContentPipelineTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(IngestionSchemaError):
                 await service.ingest_rss()
 
+    async def test_rss_configuration_is_validated_before_network_requests(self):
+        for rss_url in ("file:///tmp/feed.xml", "not-a-url"):
+            session = FakeSession({})
+            service = ContentIngestionService(
+                None, {"rss_url": rss_url}, session=session
+            )
+            with self.assertRaises(IngestionConfigurationError):
+                await service.ingest_rss()
+            self.assertEqual(session.requests, [])
+
     async def test_ingestion_retries_transient_http_errors(self):
         feed_url = "https://example.test/feed.xml"
         unavailable = aiohttp.ClientResponseError(None, (), status=503)
@@ -323,6 +333,32 @@ class ContentPipelineTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertIn("SET status = 'paused'", database.statements[-2][0])
         self.assertEqual(database.statements[-1][1][-1], [14, 20])
+
+    async def test_optimization_selects_decrease_and_no_action_branches(self):
+        class AnalyticsFixture:
+            def __init__(self, trend):
+                self.trend = trend
+
+            async def calculate_metrics(self, _sub_affiliate_id, *, as_of=None):
+                return {
+                    "total_posts": 25,
+                    "epc": 1.0,
+                    "conversion_rate": 10.0,
+                    "revenue_per_post": 12.0,
+                    "roi": 200.0,
+                    "trend": self.trend,
+                    "top_content": [],
+                }
+
+        database = FakeDatabase()
+        declining = OptimizationEngine(database, AnalyticsFixture("down_trending"))
+        actions = await declining.analyze_and_optimize("sub-1", as_of=AS_OF)
+        self.assertEqual(actions[0]["type"], ActionType.DECREASE_VOLUME)
+
+        stable = OptimizationEngine(database, AnalyticsFixture("stable"))
+        self.assertEqual(
+            await stable.analyze_and_optimize("sub-2", as_of=AS_OF), []
+        )
 
     async def test_scheduler_schedules_and_executes_injected_posting_flow(self):
         database = FakeDatabase()
