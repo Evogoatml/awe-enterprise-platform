@@ -21,7 +21,7 @@ boto3>=1.30.0  # AWS Secrets Manager
 numpy>=1.24.0
 pandas>=2.0.0
 scikit-learn>=1.9.1
-imagehash>=2.2.0
+imagehash>=4.3.2
 Pillow>=10.0.0
 opencv-python-headless==4.11.0.86
 
