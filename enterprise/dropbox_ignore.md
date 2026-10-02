@@ -7,11 +7,11 @@ multi-platform account automation described below. The current Docker image runs
 only the FastAPI application in `api/main.py`. For actual setup instructions, see
 the root `README.md`.
 
-# AWE Enterprise Affiliate Platform (proposal)
+# AWE Enterprise Affiliate Platform (historical proposal)
 
-Enterprise-grade affiliate marketing automation platform with meta-cognitive optimization, resilient infrastructure, and intelligent rate limiting.
+Proposed affiliate marketing automation concept. The capabilities listed below are not implemented as an integrated system in this repository.
 
-## Features
+## Proposed Features (Not Current Runtime Features)
 
 - **Meta-Cognitive Strategy Engine**: Self-improving campaign optimization
 - **Circuit Breaker Architecture**: Prevents cascade failures
@@ -21,22 +21,6 @@ Enterprise-grade affiliate marketing automation platform with meta-cognitive opt
 - **Multi-Platform Support**: Reddit, Twitter, Telegram
 - **Real-Time Analytics**: Live dashboard with WebSocket updates
 
-## Quick Start
+## Historical Quick Start (Not Valid for the Current Repository)
 
-```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/awe-enterprise-platform.git
-cd awe-enterprise-platform
-
-# Copy environment template
-cp .env.example .env
-# Edit .env with your credentials
-
-# Start with Docker Compose
-docker-compose up -d
-
-# Run migrations
-docker-compose exec api alembic upgrade head
-
-# Access dashboard
-open http://localhost:8000/docs
+The original Docker Compose and migration commands are not valid for this repository. See the root `README.md` for current setup instructions.

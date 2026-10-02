@@ -6,21 +6,21 @@ This repository contains a small Python API runtime, a capability-gated process 
 
 ## Executive Summary
 
-AWE Enterprise Platform is intended to become an operational layer for content production, campaign optimization, performance analytics, and platform engagement. The current repository does not yet unify these capabilities into a running multi-channel system.
+AWE Enterprise Platform is an early-stage Python codebase, not a unified operating platform. Its current runtime is a narrow FastAPI service for health, readiness, and status checks, with settings validation, a capability-gated process sandbox, and audit events. A selected content-pipeline path can be exercised as a library workflow with injected dependencies and fixtures; it is not composed with the API or a deployed worker.
 
-The repository contains components and prototypes related to strategy, account lifecycle management, campaign optimization, and content fingerprinting. Their presence does not mean they are complete, tested, or integrated with the API runtime.
+Other repository areas contain partial library modules, experimental code, or product concepts related to analytics, strategy, account lifecycle management, and content fingerprinting. Their presence does not mean they are complete, verified, or integrated into the active runtime.
 
-From a strategic perspective, the repository is positioned around three core themes:
+The broader product direction—not delivered platform behavior—centers on:
 
-- Data-informed decision support for campaign execution
-- Adaptive optimization through experiment-driven strategy evolution
-- Enterprise-scale workflow control with operational observability and resilience
+- Data-informed decision support for campaign work
+- Experiment-driven strategy and optimization
+- Workflow controls, observability, and resilience
 
-This makes the solution relevant not only to technical engineering teams, but also to executive stakeholders seeking a platform that can improve efficiency, reduce operational drift, and unlock more scalable digital growth.
+These are goals for future development, not demonstrated outcomes or features of the current runtime.
 
-## Strategic Value
+## Product Direction (Aspirational)
 
-AWE Enterprise Platform is intended to provide decision-makers with a disciplined operational model for high-volume digital environments. It is especially relevant for organizations that manage:
+The product concept targets organizations that manage:
 
 - Multi-channel digital campaigns
 - Large volumes of content and creative assets
@@ -28,7 +28,7 @@ AWE Enterprise Platform is intended to provide decision-makers with a discipline
 - Experimentation across audiences and offer structures
 - Governance and lifecycle controls across customer and affiliate accounts
 
-The intended architecture supports a feedback loop: ingest content, evaluate performance, apply optimization logic, refine strategy, and redeploy configurations. Only a fixture-backed library workflow currently exercises part of this path; it is not an enabled campaign service.
+The proposed architecture describes a feedback loop: ingest content, evaluate performance, apply optimization logic, refine strategy, and redeploy configurations. Only a fixture-backed library workflow currently exercises part of this path; it is not an enabled campaign service.
 
 ## Architecture Overview
 
@@ -44,35 +44,35 @@ The repository contains a small runnable API plus standalone libraries and proto
 
 ### Core Components
 
-The following are intended capability areas, not a list of fully implemented runtime features. See [Implementation status](#implementation-status) for current coverage and integration gaps.
+The following are broader capability areas represented by a mixture of partial library code, prototypes, and product direction—not a list of integrated runtime features. See [Implementation status](#implementation-status) for current coverage and gaps.
 
-1. Analytics and Optimization Services
+1. Analytics and Optimization Services (partial library modules; not API-integrated)
    - Performance tracking
    - KPI measurement and evaluation
    - Campaign strategy refinement
    - Operational learning loops
 
-2. Content Ingestion and Workflow Automation
+2. Content Ingestion and Workflow Automation (selected library workflow; not a deployed service)
    - Content acquisition and organization
    - Structured processing pipelines
    - Source normalization and readiness checks
 
-3. Enterprise Lifecycle Management
+3. Enterprise Lifecycle Management (prototype)
    - Account state tracking and operational controls
    - Lifecycle transitions and maintenance
    - Policy-aware operational governance
 
-4. Meta-Cognitive Strategy Engine
+4. Meta-Cognitive Strategy Engine (experimental)
    - Strategy exploration and adaptation
    - Experimental branching and optimization patterns
    - Decision support based on historical performance and emerging signals
 
-5. Content Deduplication and Fingerprinting
+5. Content Deduplication and Fingerprinting (prototype)
    - Asset similarity analysis
    - Content overlap detection
    - Efficiency gains via reduced redundancy
 
-6. Observability, Resilience, and Rate Control
+6. Observability, Resilience, and Rate Control (standalone prototypes)
    - Circuit breakers and operational safeguards
    - Request throttling and adaptive pacing
    - Monitoring and telemetry for health visibility
@@ -120,10 +120,10 @@ The implemented API runtime is Python-based and uses FastAPI, Uvicorn, asyncpg, 
 These describe product direction; they are not claims that all behaviors are available in the current runtime.
 
 ### Adaptive Strategy Generation
-The repository includes a meta-cognitive strategy engine designed to generate, evaluate, and iterate on campaign concepts. This type of logic enables a platform to move from static campaign rules to dynamic strategic experimentation.
+An experimental strategy module is present, but it is not connected to the API runtime or a verified campaign workflow. Dynamic strategic experimentation remains product direction.
 
 ### Performance-Oriented Discovery
-The design emphasizes measurable improvement across content, delivery, and engagement workflows, reinforcing a culture of continuous optimization rather than reactionary change.
+Measurable improvement across content, delivery, and engagement is a product goal; the current repository does not demonstrate this as an integrated capability.
 
 ### Enterprise Readiness
 Enterprise-oriented modules and governance patterns exist as prototypes, but they are not evidence of operational readiness or integrated account controls.
