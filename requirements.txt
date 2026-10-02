@@ -11,7 +11,7 @@ praw>=7.6.0  # Reddit API alternative
 python-dotenv>=1.0.0
 
 # Database
-psycopg2-binary>=2.9.0  # PostgreSQL
+psycopg2-binary>=2.9.13  # PostgreSQL
 
 # Caching & Storage
 hvac>=2.0.0  # HashiCorp Vault
