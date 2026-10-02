@@ -153,7 +153,7 @@ set +a
 python -m api.main
 ```
 
-The server listens on `HOST`/`PORT` (default `0.0.0.0:8000`). `GET /health/live` checks that the process responds; `GET /health/ready` checks PostgreSQL and Redis connectivity and returns 503 if either URL is unset or a dependency is unavailable. The `/api/` routes require an `Authorization: ****** header; requests fail closed when no token is configured. Production mode also requires database and Redis URLs and an API token of at least 32 characters, and disables the interactive API documentation.
+The server listens on `HOST`/`PORT` (default `0.0.0.0:8000`). `GET /health/live` checks that the process responds; `GET /health/ready` checks PostgreSQL and Redis connectivity and returns 503 if either URL is unset or a dependency is unavailable. All `/api/` routes require bearer-token authentication and fail closed when no token is configured. Production mode also requires database and Redis URLs and an API token of at least 32 characters, and disables the interactive API documentation.
 
 Set `APP_ENV=production` and supply `DATABASE_URL`, `REDIS_URL`, and a securely generated `API_TOKEN` through the deployment secret manager. The shared API token is only a minimal gate; it does not provide user identity, roles, or per-user authorization and is not a substitute for a complete production identity system. Never commit `.env` files or production credentials. Use `python -m unittest discover -s tests -v` to run the current test suite.
 
