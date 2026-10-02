@@ -193,8 +193,14 @@ class ContentIngestionService:
         rss_url = self.awe.get("rss_url")
         if not isinstance(rss_url, str) or not rss_url.strip():
             raise IngestionConfigurationError("rss_url is required for RSS ingestion")
+        try:
+            rss_url = self._http_url(rss_url.strip(), "rss_url")
+        except IngestionSchemaError as exc:
+            raise IngestionConfigurationError(
+                "rss_url must be an HTTP(S) URL"
+            ) from exc
 
-        body = await self._get_text(rss_url.strip())
+        body = await self._get_text(rss_url)
         if "<!doctype" in body.lower() or "<!entity" in body.lower():
             raise IngestionSchemaError("RSS documents must not declare entities")
         try:
