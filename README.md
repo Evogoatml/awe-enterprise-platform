@@ -1,5 +1,7 @@
 # AWE Enterprise Platform
 
+> **Status: not production-ready.** The API runtime, configuration validation, and health checks are a starting point only. Campaign automation, external-platform integrations, persistent data APIs, migrations, deployment hardening, and operational monitoring remain incomplete and must not be treated as production features.
+
 AWE Enterprise Platform is a Python-based, modular platform for AI-assisted digital operations, campaign optimization, content intelligence, and enterprise-grade automation. The repository is designed as a strategic foundation for modern performance marketing and operational orchestration, combining analytics, experimentation, intelligent routing, and adaptive strategy generation into a single extensible system.
 
 ## Executive Summary
@@ -130,26 +132,32 @@ The platform includes patterns for monitoring, throttling, and circuit-breaking 
 ### Prerequisites
 
 - Python 3.10+
-- pip or Poetry
-- PostgreSQL-compatible database access
-- Redis for queue or caching workflows
-- Optional: cloud secret manager for production configuration
+- PostgreSQL and Redis for readiness checks
+- pip
 
 ### Installation
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+cp .env.example .env
 ```
 
 ### Running the Application
 
 ```bash
-python src/main.py
+set -a
+. ./.env
+set +a
+python -m api.main
 ```
 
-The repository currently appears to be structured as an application foundation and orchestration layer, with execution entry points centered around `src/main.py` and service modules under `src/services`.
+The server listens on `HOST`/`PORT` (default `0.0.0.0:8000`). `GET /health/live` checks that the process responds; `GET /health/ready` checks PostgreSQL and Redis connectivity and returns 503 if either URL is unset or a dependency is unavailable. The `/api/` routes require an `Authorization: ****** header; requests fail closed when no token is configured. Production mode also requires database and Redis URLs and an API token of at least 32 characters, and disables the interactive API documentation.
+
+Set `APP_ENV=production` and supply `DATABASE_URL`, `REDIS_URL`, and a securely generated `API_TOKEN` through the deployment secret manager. The shared API token is only a minimal gate; it does not provide user identity, roles, or per-user authorization and is not a substitute for a complete production identity system. Never commit `.env` files or production credentials. Use `python -m unittest discover -s tests -v` to run the current test suite.
+
+`src/main.py` remains as a compatibility entry point (`python -m src.main`). The services under `src/services`, `engine`, and `enterprise` are not all wired into this API runtime; several remain incomplete prototypes. Do not enable external account actions until platform policy, authorization, consent, rate limits, audit, and recovery controls are implemented and verified.
 
 ## Notable Implementation Signals
 
