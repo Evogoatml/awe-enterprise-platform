@@ -51,6 +51,7 @@ Security model (read this before changing behaviour)
 from __future__ import annotations
 
 import ctypes
+import logging
 import os
 import resource
 import shutil
@@ -62,6 +63,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Sequence
 
+from security.audit import audit_event
 from security.capability import CapabilityError, CapabilityManager
 
 #: Substrings that are *suggestive* of risky command construction.
@@ -260,10 +262,44 @@ class Sandbox:
         policy = policy or SandboxPolicy()
 
         # --- Security boundary: capability verification -------------------
-        capability = self._capabilities.verify(token, required_scope="sandbox:execute")
+        try:
+            capability = self._capabilities.verify(token, required_scope="sandbox:execute")
+        except CapabilityError as exc:
+            audit_event(
+                "sandbox_execution_denied",
+                level=logging.WARNING,
+                reason=str(exc),
+            )
+            if policy.allow_network:
+                audit_event(
+                    "sandbox_network_attempt",
+                    level=logging.WARNING,
+                    outcome="denied",
+                    reason="capability_verification_failed",
+                )
+            raise
         if policy.allow_network and not capability.has_scope("sandbox:network"):
+            audit_event(
+                "sandbox_network_attempt",
+                level=logging.WARNING,
+                outcome="denied",
+                subject=capability.subject,
+                reason="missing_sandbox:network_scope",
+            )
+            audit_event(
+                "sandbox_execution_denied",
+                level=logging.WARNING,
+                reason="network access requires the 'sandbox:network' capability scope",
+                subject=capability.subject,
+            )
             raise CapabilityError(
                 "network access requires the 'sandbox:network' capability scope"
+            )
+        if policy.allow_network:
+            audit_event(
+                "sandbox_network_attempt",
+                outcome="permitted",
+                subject=capability.subject,
             )
 
         # --- Advisory-only telemetry, never a security gate ----------------
@@ -314,6 +350,13 @@ class Sandbox:
                 except subprocess.TimeoutExpired:
                     timed_out = True
                     _kill_process_group(proc)
+                    audit_event(
+                        "sandbox_timeout_kill",
+                        level=logging.WARNING,
+                        subject=capability.subject,
+                        executable=os.path.basename(command[0]),
+                        timeout_seconds=policy.wall_timeout_seconds,
+                    )
                     try:
                         exit_code = proc.wait(timeout=5)
                     except subprocess.TimeoutExpired:
